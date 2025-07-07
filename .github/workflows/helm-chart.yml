@@ -16,6 +16,12 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
+      - name: Set up Helm repos
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add vespa https://onyx-dot-app.github.io/vespa-helm-charts
+          helm repo update
+
       - uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: deployment/helm/charts
