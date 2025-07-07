@@ -27,8 +27,23 @@ jobs:
           helm repo add vespa https://onyx-dot-app.github.io/vespa-helm-charts
           helm repo update
 
-      - uses: helm/chart-releaser-action@v1.7.0
+      - name: Generate Helm docs
+        uses: docker://jnorwood/helm-docs:v1.14.2
+        with:
+          args: -chart-search-root ./deployment/helm/charts
+
+      - name: Run chart releaser
+        uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: deployment/helm/charts
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push README.md to gh-pages
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
+          cp deployment/helm/charts/onyx/README.md README.md
+          git add README.md
+          git commit -m "Update Helm chart README for ${{ github.ref }}"
+          git push origin gh-pages
